@@ -50,9 +50,17 @@ const removeWalls = (first: MazeCell, second: MazeCell) => {
 
 export const useMaze = (width: number, height: number) => {
   const [maze, setMaze] = useState<Maze>(createInitialMaze(width, height));
+  const [startCell, setStartCell] = useState<MazeCell | null>(null);
+  const [endCell, setEndCell] = useState<MazeCell | null>(null);
+  const [solutionPath, setSolutionPath] = useState<{ x: number; y: number }[]>(
+    []
+  );
 
   const resetMazeState = () => {
     setMaze(createInitialMaze(width, height));
+    setSolutionPath([]);
+    setStartCell(null);
+    setEndCell(null);
   };
 
   const generateMaze = async () => {
@@ -86,6 +94,8 @@ export const useMaze = (width: number, height: number) => {
     newMaze[end.y][end.x].isEnd = true;
 
     setMaze(newMaze);
+    setStartCell(newMaze[start.y][start.x]);
+    setEndCell(newMaze[end.y][end.x]);
   };
 
   const getUnvisitedNeighbors = (cell: MazeCell, maze: Maze): MazeCell[] => {
@@ -100,8 +110,77 @@ export const useMaze = (width: number, height: number) => {
     return neighbors;
   };
 
+  const solveMaze = () => {
+    if (!startCell || !endCell) {
+      alert("Please generate a maze first!");
+      return;
+    }
+
+    const queue: { x: number; y: number; path: { x: number; y: number }[] }[] =
+      [
+        {
+          x: startCell.x,
+          y: startCell.y,
+          path: [{ x: startCell.x, y: startCell.y }],
+        },
+      ];
+    const visited: boolean[][] = Array.from({ length: height }, () =>
+      Array(width).fill(false)
+    );
+
+    const findSolution = () => {
+      while (queue.length > 0) {
+        const { x, y, path } = queue.shift()!;
+        if (visited[y][x]) continue;
+
+        visited[y][x] = true;
+        setSolutionPath([...path]);
+        if (x === endCell.x && y === endCell.y) {
+          return;
+        }
+
+        getNeighbors(y, x, maze).forEach(({ x: nextX, y: nextY }) => {
+          if (!visited[nextY][nextX]) {
+            queue.push({
+              x: nextX,
+              y: nextY,
+              path: [...path, { x: nextX, y: nextY }],
+            });
+          }
+        });
+      }
+      alert("No solution found!");
+    };
+
+    findSolution();
+  };
+
+  const getNeighbors = (y: number, x: number, maze: Maze) => {
+    const neighbors: { x: number; y: number }[] = [];
+
+    if (y > 0 && !maze[y][x].walls.top) {
+      neighbors.push({ x, y: y - 1 });
+    }
+
+    if (x < width - 1 && !maze[y][x].walls.right) {
+      neighbors.push({ x: x + 1, y });
+    }
+
+    if (y < height - 1 && !maze[y][x].walls.bottom) {
+      neighbors.push({ x, y: y + 1 });
+    }
+
+    if (x > 0 && !maze[y][x].walls.left) {
+      neighbors.push({ x: x - 1, y });
+    }
+
+    return neighbors;
+  };
+
   return {
     maze,
     generateMaze,
+    solutionPath,
+    solveMaze,
   };
 };
