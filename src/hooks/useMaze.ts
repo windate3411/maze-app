@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Maze, MazeCell } from "../types/Maze";
+import { db } from "../firebase-init";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 
 const createInitialMaze = (width: number, height: number): Maze => {
   return Array.from({ length: height }, (_, y) =>
@@ -56,6 +58,42 @@ export const useMaze = (width: number, height: number) => {
     []
   );
   const [isAnimating, setIsAnimating] = useState(false);
+  const [selectedMazeId, setSelectedMazeId] = useState<string | null>(null);
+  const [mazes, setMazes] = useState<
+    {
+      id: string;
+      date: string;
+      maze: Maze;
+      start: { x: number; y: number };
+      end: { x: number; y: number };
+    }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchMazes = async () => {
+      const querySnapshot = await getDocs(collection(db, "mazes"));
+      const mazesData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        date: doc.data().date,
+        maze: JSON.parse(doc.data().maze),
+        start: doc.data().start,
+        end: doc.data().end,
+      }));
+      setMazes(mazesData);
+    };
+
+    fetchMazes();
+  }, []);
+
+  useEffect(() => {
+    const selectedMaze = mazes.find((m) => m.id === selectedMazeId);
+    if (selectedMaze) {
+      const { maze, end, start } = selectedMaze;
+      setMaze(maze);
+      setStartCell(maze[start.y][start.x]);
+      setEndCell(maze[end.y][end.x]);
+    }
+  }, [selectedMazeId, mazes]);
 
   const resetMazeState = () => {
     setMaze(createInitialMaze(width, height));
@@ -97,6 +135,18 @@ export const useMaze = (width: number, height: number) => {
     setMaze(newMaze);
     setStartCell(newMaze[start.y][start.x]);
     setEndCell(newMaze[end.y][end.x]);
+
+    try {
+      const docRef = await addDoc(collection(db, "mazes"), {
+        date: new Date().toISOString(),
+        maze: JSON.stringify(newMaze),
+        start: { x: start.x, y: start.y },
+        end: { x: end.x, y: end.y },
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
 
   const getUnvisitedNeighbors = (cell: MazeCell, maze: Maze): MazeCell[] => {
@@ -194,9 +244,11 @@ export const useMaze = (width: number, height: number) => {
 
   return {
     maze,
+    mazes,
     generateMaze,
     solutionPath,
     solveMaze,
     isAnimating,
+    setSelectedMazeId,
   };
 };
