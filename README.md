@@ -1,31 +1,65 @@
-# React + TypeScript + Vite
+# Maze App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project implements a maze generator and solver using React and Firebase. It provides a visual representation of the maze, where users can generate new mazes, solve them, and view the solution path animated step-by-step. The project also integrates Firebase Firestore to save and retrieve generated mazes.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Generate Maze:** Dynamically create mazes with variable start and end points.
+- **Solve Maze:** Solve the generated mazes using a breadth-first search algorithm.
+- **Animation:** Visualize the pathfinding algorithm with an animated solution path.
+- **Firebase Integration:** Save and load mazes to and from Firebase Firestore.
 
-## Expanding the ESLint configuration
+## Technologies Used
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- React.js
+- TypeScript
+- Tailwind CSS
+- Firebase Firestore
 
-- Configure the top-level `parserOptions` property like this:
+## Live Demo Link
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+https://maze-app-gamma.vercel.app/
+
+## Project Setup
+
+### Prerequisites
+
+- Node.js
+- npm or yarn
+- Firebase account
+
+### Installation
+
+1. **Clone the repository:**
+
+```bash
+git clone https://github.com/windate3411/maze-app.git
+cd maze-app
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
-# maze-app
+2. **Install dependencies:**
+
+```bash
+npm install
+```
+
+3. **Set up Firebase:**
+
+- Create a Firebase project in the Firebase console.
+- Add your Firebase project credentials to .env.local
+
+```
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+
+```
+
+4. **Run the development server:**
+
+```bash
+npm run dev
+```
