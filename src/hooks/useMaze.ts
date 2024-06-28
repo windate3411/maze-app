@@ -55,6 +55,7 @@ export const useMaze = (width: number, height: number) => {
   const [solutionPath, setSolutionPath] = useState<{ x: number; y: number }[]>(
     []
   );
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const resetMazeState = () => {
     setMaze(createInitialMaze(width, height));
@@ -134,8 +135,10 @@ export const useMaze = (width: number, height: number) => {
         if (visited[y][x]) continue;
 
         visited[y][x] = true;
-        setSolutionPath([...path]);
+
         if (x === endCell.x && y === endCell.y) {
+          // only start the animation if a solution is finalized
+          animateSolutionPath(path);
           return;
         }
 
@@ -150,6 +153,18 @@ export const useMaze = (width: number, height: number) => {
         });
       }
       alert("No solution found!");
+    };
+
+    const animateSolutionPath = (path: { x: number; y: number }[]) => {
+      setIsAnimating(true);
+      path.forEach((_, index) => {
+        setTimeout(() => {
+          setSolutionPath(path.slice(0, index + 1));
+          if (index === path.length - 1) {
+            setIsAnimating(false);
+          }
+        }, 10 * index);
+      });
     };
 
     findSolution();
@@ -182,5 +197,6 @@ export const useMaze = (width: number, height: number) => {
     generateMaze,
     solutionPath,
     solveMaze,
+    isAnimating,
   };
 };
