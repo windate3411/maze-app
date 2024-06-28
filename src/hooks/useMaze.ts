@@ -92,6 +92,7 @@ export const useMaze = (width: number, height: number) => {
       setMaze(maze);
       setStartCell(maze[start.y][start.x]);
       setEndCell(maze[end.y][end.x]);
+      setSolutionPath([]);
     }
   }, [selectedMazeId, mazes]);
 
